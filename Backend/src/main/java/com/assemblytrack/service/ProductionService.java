@@ -15,15 +15,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductionService {
-
-    private static final ZoneId APP_ZONE = ZoneId.of("Asia/Kolkata");
 
     @Autowired
     private ProductionRunRepository productionRunRepository;
@@ -38,7 +36,7 @@ public class ProductionService {
     private EmployeeRepository employeeRepository;
 
     public List<ProductionRunDTO> getActiveProductions() {
-        return productionRunRepository.findByStatus(ProductionRun.Status.ACTIVE)
+        return productionRunRepository.findByStatusOrderByStartTimeDesc(ProductionRun.Status.ACTIVE)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -49,6 +47,11 @@ public class ProductionService {
         Employee employee = employeeRepository.findByEmployeeId(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
+        if (productionRunRepository.existsByEmployeeAndStatus(employee, ProductionRun.Status.ACTIVE)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "You already have an active production. Stop it before starting a new one.");
+        }
+
         String toolsUsed = request.getToolsUsed() != null ? String.join(",", request.getToolsUsed()) : null;
 
         ProductionRun productionRun = new ProductionRun(
@@ -57,7 +60,7 @@ public class ProductionService {
                 request.getCategory(),
                 request.getWorkStation(),
                 toolsUsed,
-                LocalDateTime.now(APP_ZONE),
+                LocalDateTime.now(ZoneOffset.UTC),
                 request.getExpectedDuration());
 
         productionRun = productionRunRepository.save(productionRun);
@@ -80,7 +83,7 @@ public class ProductionService {
             throw new RuntimeException("Production run is not active");
         }
 
-        LocalDateTime endTime = LocalDateTime.now(APP_ZONE);
+        LocalDateTime endTime = LocalDateTime.now(ZoneOffset.UTC);
         long actualDurationMinutes = ChronoUnit.MINUTES.between(productionRun.getStartTime(), endTime);
         int actualDuration = (int) actualDurationMinutes;
 
@@ -153,10 +156,10 @@ public class ProductionService {
         String quality = null;
         String logbookNotes = null;
         OffsetDateTime startTimeWithZone = productionRun.getStartTime() != null
-                ? productionRun.getStartTime().atZone(APP_ZONE).toOffsetDateTime()
+                ? productionRun.getStartTime().atOffset(ZoneOffset.UTC)
                 : null;
         OffsetDateTime endTimeWithZone = productionRun.getEndTime() != null
-                ? productionRun.getEndTime().atZone(APP_ZONE).toOffsetDateTime()
+                ? productionRun.getEndTime().atOffset(ZoneOffset.UTC)
                 : null;
 
         if (productionRun.getProductionResult() != null) {

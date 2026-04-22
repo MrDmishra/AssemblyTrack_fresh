@@ -12,7 +12,9 @@ import java.util.List;
 @Repository
 public interface ProductionRunRepository extends JpaRepository<ProductionRun, Long> {
 
-    List<ProductionRun> findByStatus(ProductionRun.Status status);
+    List<ProductionRun> findByStatusOrderByStartTimeDesc(ProductionRun.Status status);
+
+    boolean existsByEmployeeAndStatus(com.assemblytrack.entity.Employee employee, ProductionRun.Status status);
 
     @Query("SELECT pr FROM ProductionRun pr WHERE pr.startTime BETWEEN :startDate AND :endDate")
     List<ProductionRun> findByDateRange(@Param("startDate") LocalDateTime startDate,
