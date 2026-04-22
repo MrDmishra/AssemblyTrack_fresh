@@ -3,28 +3,19 @@ import PropTypes from 'prop-types';
 import StopProductionForm from './StopProductionForm';
 import './ActiveProductionsTable.css';
 
-const APP_TIME_ZONE = 'Asia/Kolkata';
-
 const parseApiDate = (value) => {
   if (!value) {
     return null;
   }
-
-  const normalized = String(value).replace(' ', 'T');
-  const hasZone = /[zZ]$|[+-]\d{2}:\d{2}$/.test(normalized);
-  const isoWithZone = hasZone ? normalized : `${normalized}+05:30`;
-  const parsed = new Date(isoWithZone);
-
+  const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
 const formatDateTime = (value) => {
   const parsed = parseApiDate(value);
-
   if (!parsed) {
     return '-';
   }
-
   return parsed.toLocaleString('en-GB', {
     day: '2-digit',
     month: 'short',
@@ -32,7 +23,7 @@ const formatDateTime = (value) => {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
-    timeZone: APP_TIME_ZONE
+    timeZone: 'Asia/Kolkata'
   });
 };
 
@@ -48,8 +39,9 @@ const ActiveProductionsTable = ({ productions, onProductionStopped, currentEmplo
       return '--:--';
     }
 
-    const now = new Date();
-    const diff = Math.max(0, now - start);
+    // new Date() returns current UTC time (milliseconds since epoch)
+    const nowUtc = new Date();
+    const diff = Math.max(0, nowUtc - start);
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;

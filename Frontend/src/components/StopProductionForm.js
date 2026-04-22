@@ -2,28 +2,19 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './StopProductionForm.css';
 
-const APP_TIME_ZONE = 'Asia/Kolkata';
-
 const parseApiDate = (value) => {
   if (!value) {
     return null;
   }
-
-  const normalized = String(value).replace(' ', 'T');
-  const hasZone = /[zZ]$|[+-]\d{2}:\d{2}$/.test(normalized);
-  const isoWithZone = hasZone ? normalized : `${normalized}+05:30`;
-  const parsed = new Date(isoWithZone);
-
+  const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
 const formatDateTime = (value) => {
   const parsed = parseApiDate(value);
-
   if (!parsed) {
     return '-';
   }
-
   return parsed.toLocaleString('en-GB', {
     day: '2-digit',
     month: 'short',
@@ -31,7 +22,7 @@ const formatDateTime = (value) => {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
-    timeZone: APP_TIME_ZONE
+    timeZone: 'Asia/Kolkata'
   });
 };
 
@@ -86,6 +77,7 @@ const StopProductionForm = ({ production, onClose, onProductionStopped }) => {
       return;
     }
 
+    // Calculate actual duration in minutes using UTC timestamps
     const actualDuration = Math.floor((new Date() - parsedStartTime) / 60000);
     const isDelayed =
       production.expectedDuration != null &&
