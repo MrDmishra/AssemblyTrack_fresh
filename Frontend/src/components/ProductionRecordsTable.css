@@ -6,6 +6,8 @@
   padding: 10px;
   max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: block;
 }
 
 .production-records table {
@@ -13,18 +15,17 @@
   border-collapse: collapse;
   background: white;
   font-size: 0.82rem;
-  table-layout: fixed;
-  min-width: 0;
+  table-layout: auto;
+  min-width: 860px;
 }
 
 .production-records th,
 .production-records td {
   border-bottom: 1px solid #e8edf6;
-  padding: 8px;
+  padding: 8px 10px;
   text-align: left;
   color: #314567;
-  vertical-align: top;
-  word-break: break-word;
+  vertical-align: middle;
   line-height: 1.28;
 }
 
@@ -37,6 +38,7 @@
   font-size: 0.74rem;
   position: sticky;
   top: 0;
+  white-space: nowrap;
 }
 
 .production-records tr:hover {
@@ -72,55 +74,18 @@
   padding: 18px;
 }
 
-.production-records .col-employee {
-  width: 10%;
-}
-
-.production-records .col-product {
-  width: 12%;
-}
-
-.production-records .col-category {
-  width: 9%;
-}
-
-.production-records .col-station {
-  width: 8%;
-}
-
-.production-records .col-date {
-  width: 9%;
-}
-
-.production-records .col-duration {
-  width: 8%;
-}
-
-.production-records .col-status {
-  width: 8%;
-  white-space: nowrap;
-}
-
-.production-records .col-quality {
-  width: 6%;
-}
-
-.production-records .col-units {
-  width: 7%;
-}
-
-.production-records .col-notes {
-  width: 13%;
-}
-
-.production-records .col-delay {
-  width: 9%;
-}
-
-.production-records .col-actions {
-  width: 7%;
-  white-space: nowrap;
-}
+.production-records .col-employee { min-width: 100px; }
+.production-records .col-product  { min-width: 110px; }
+.production-records .col-category { min-width: 90px; }
+.production-records .col-station  { min-width: 100px; }
+.production-records .col-date     { min-width: 90px; white-space: nowrap; }
+.production-records .col-duration { min-width: 110px; }
+.production-records .col-status   { min-width: 100px; white-space: nowrap; }
+.production-records .col-quality  { min-width: 70px; }
+.production-records .col-units    { min-width: 80px; }
+.production-records .col-notes    { min-width: 120px; }
+.production-records .col-delay    { min-width: 100px; }
+.production-records .col-actions  { min-width: 90px; white-space: nowrap; }
 
 .production-records .download-img-btn {
   padding: 4px 8px;

@@ -10,6 +10,8 @@
   justify-content: center;
   z-index: 1000;
   padding: 14px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-content {
@@ -18,8 +20,12 @@
   border-radius: var(--radius-md);
   width: 500px;
   max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
+  margin: auto 0;
 }
 
 .modal-content h2 {
@@ -90,7 +96,6 @@
 .tool-checkbox {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   padding: 6px 12px;
   border-radius: 20px;
   border: 1px solid #c0cce4;
@@ -100,12 +105,19 @@
   cursor: pointer;
   user-select: none;
   transition: background 0.15s, border-color 0.15s;
+  line-height: 1;
 }
 
 .tool-checkbox input[type="checkbox"] {
-  width: auto;
-  margin: 0;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin: 0 7px 0 0;
   padding: 0;
+  cursor: pointer;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
   accent-color: var(--bg-accent, #3b6ff5);
 }
 

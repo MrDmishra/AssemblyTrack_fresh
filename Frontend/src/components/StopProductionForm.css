@@ -10,6 +10,8 @@
   justify-content: center;
   z-index: 1000;
   padding: 14px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-content {
@@ -18,8 +20,12 @@
   border-radius: var(--radius-md);
   width: 500px;
   max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
+  margin: auto 0;
 }
 
 .modal-content h2 {
