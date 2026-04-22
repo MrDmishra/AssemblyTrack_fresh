@@ -48,7 +48,7 @@ const ActiveProductionsTable = ({ productions, onProductionStopped, currentEmplo
               <tr key={production.id}>
                 <td>{production.employeeId}</td>
                 <td>{production.productName}</td>
-                <td>{new Date(production.startTime).toLocaleString()}</td>
+                <td>{new Date(production.startTime).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</td>
                 <td>{calculateDuration(production.startTime)}</td>
                 <td>On-Time</td>
                 <td>

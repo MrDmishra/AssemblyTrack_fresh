@@ -48,7 +48,10 @@ const StopProductionForm = ({ production, onClose, onProductionStopped }) => {
 
     // Check if delay reason is required
     const actualDuration = Math.floor((new Date() - new Date(production.startTime)) / 60000);
-    const isDelayed = actualDuration > production.expectedDuration;
+    const isDelayed =
+      production.expectedDuration != null &&
+      production.expectedDuration > 0 &&
+      actualDuration > production.expectedDuration;
 
     if (isDelayed && !formData.delayReason.trim()) {
       setError('Delay reason is required for delayed production');
@@ -81,7 +84,7 @@ const StopProductionForm = ({ production, onClose, onProductionStopped }) => {
       <div className="modal-content">
         <h2>Stop Production</h2>
         <p><strong>Product:</strong> {production.productName}</p>
-        <p><strong>Started:</strong> {new Date(production.startTime).toLocaleString()}</p>
+        <p><strong>Started:</strong> {new Date(production.startTime).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</p>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
