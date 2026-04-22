@@ -3,15 +3,53 @@ import PropTypes from 'prop-types';
 import StopProductionForm from './StopProductionForm';
 import './ActiveProductionsTable.css';
 
+const APP_TIME_ZONE = 'Asia/Kolkata';
+
+const parseApiDate = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = String(value).replace(' ', 'T');
+  const hasZone = /[zZ]$|[+-]\d{2}:\d{2}$/.test(normalized);
+  const isoWithZone = hasZone ? normalized : `${normalized}+05:30`;
+  const parsed = new Date(isoWithZone);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const formatDateTime = (value) => {
+  const parsed = parseApiDate(value);
+
+  if (!parsed) {
+    return '-';
+  }
+
+  return parsed.toLocaleString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: APP_TIME_ZONE
+  });
+};
+
 const ActiveProductionsTable = ({ productions, onProductionStopped, currentEmployeeId, currentRole }) => {
   const canStop = (production) =>
     currentRole === 'ADMIN' || production.employeeId === currentEmployeeId;
   const [stoppingProduction, setStoppingProduction] = useState(null);
 
   const calculateDuration = (startTime) => {
-    const start = new Date(startTime);
+    const start = parseApiDate(startTime);
+
+    if (!start) {
+      return '--:--';
+    }
+
     const now = new Date();
-    const diff = now - start;
+    const diff = Math.max(0, now - start);
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -48,7 +86,7 @@ const ActiveProductionsTable = ({ productions, onProductionStopped, currentEmplo
               <tr key={production.id}>
                 <td>{production.employeeId}</td>
                 <td>{production.productName}</td>
-                <td>{new Date(production.startTime).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</td>
+                <td>{formatDateTime(production.startTime)}</td>
                 <td>{calculateDuration(production.startTime)}</td>
                 <td>On-Time</td>
                 <td>

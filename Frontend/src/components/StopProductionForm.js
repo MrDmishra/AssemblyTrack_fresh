@@ -2,6 +2,39 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './StopProductionForm.css';
 
+const APP_TIME_ZONE = 'Asia/Kolkata';
+
+const parseApiDate = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = String(value).replace(' ', 'T');
+  const hasZone = /[zZ]$|[+-]\d{2}:\d{2}$/.test(normalized);
+  const isoWithZone = hasZone ? normalized : `${normalized}+05:30`;
+  const parsed = new Date(isoWithZone);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const formatDateTime = (value) => {
+  const parsed = parseApiDate(value);
+
+  if (!parsed) {
+    return '-';
+  }
+
+  return parsed.toLocaleString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: APP_TIME_ZONE
+  });
+};
+
 const StopProductionForm = ({ production, onClose, onProductionStopped }) => {
   const [formData, setFormData] = useState({
     unitsProduced: '',
@@ -47,7 +80,13 @@ const StopProductionForm = ({ production, onClose, onProductionStopped }) => {
     e.preventDefault();
 
     // Check if delay reason is required
-    const actualDuration = Math.floor((new Date() - new Date(production.startTime)) / 60000);
+    const parsedStartTime = parseApiDate(production.startTime);
+    if (!parsedStartTime) {
+      setError('Invalid start time received from server');
+      return;
+    }
+
+    const actualDuration = Math.floor((new Date() - parsedStartTime) / 60000);
     const isDelayed =
       production.expectedDuration != null &&
       production.expectedDuration > 0 &&
@@ -84,7 +123,7 @@ const StopProductionForm = ({ production, onClose, onProductionStopped }) => {
       <div className="modal-content">
         <h2>Stop Production</h2>
         <p><strong>Product:</strong> {production.productName}</p>
-        <p><strong>Started:</strong> {new Date(production.startTime).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+        <p><strong>Started:</strong> {formatDateTime(production.startTime)}</p>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
