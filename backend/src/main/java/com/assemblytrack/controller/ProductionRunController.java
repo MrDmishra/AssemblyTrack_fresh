@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -82,16 +83,19 @@ public class ProductionRunController {
 
         return productionRunRepository.findById(id).map(run -> {
             try {
-                String originalName = Paths.get(image.getOriginalFilename() == null ? "upload" : image.getOriginalFilename())
-                    .getFileName().toString();
-                String extension = "";
-                int dot = originalName.lastIndexOf('.');
-                if (dot > -1) {
-                    extension = originalName.substring(dot);
+                String contentType = image.getContentType();
+                Map<String, String> allowedTypes = Map.of(
+                    "image/jpeg", ".jpg",
+                    "image/png", ".png",
+                    "image/webp", ".webp"
+                );
+                if (contentType == null || !allowedTypes.containsKey(contentType)) {
+                    return ResponseEntity.badRequest().build();
                 }
+
                 Path uploadDir = Paths.get("uploads");
                 Files.createDirectories(uploadDir);
-                String safeName = UUID.randomUUID() + extension;
+                String safeName = UUID.randomUUID() + allowedTypes.get(contentType);
                 Path target = uploadDir.resolve(safeName);
                 Files.copy(image.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
                 run.setImagePath(target.toString());

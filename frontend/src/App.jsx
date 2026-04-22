@@ -76,8 +76,8 @@ function App() {
       ...runForm,
       productId: Number(runForm.productId),
       quantity: Number(runForm.quantity),
-      startedAt: `${runForm.startedAt}:00`,
-      completedAt: runForm.completedAt ? `${runForm.completedAt}:00` : null,
+      startedAt: runForm.startedAt,
+      completedAt: runForm.completedAt || null,
     }, { headers: authHeaders });
     setRunForm({ productId: '', quantity: 1, status: 'PLANNED', startedAt: '', completedAt: '' });
     await loadDashboard();
