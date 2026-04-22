@@ -11,4 +11,12 @@ WORKDIR /app
 COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
-CMD ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar /app/app.jar"]
+CMD ["sh", "-c", \
+  "if [ -f /opt/render/project/src/Backend/aiven-ca.pem ]; then \
+     keytool -importcert -noprompt -trustcacerts \
+       -alias aiven-mysql-ca \
+       -file /opt/render/project/src/Backend/aiven-ca.pem \
+       -keystore $JAVA_HOME/lib/security/cacerts \
+       -storepass changeit; \
+   fi && \
+   java -Dserver.port=${PORT:-8080} -jar /app/app.jar"]
