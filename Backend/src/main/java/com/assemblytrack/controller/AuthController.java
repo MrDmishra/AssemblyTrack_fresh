@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -32,17 +34,38 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        Employee employee = employeeRepository.findByEmployeeId(loginRequest.getEmployeeId())
+        String employeeId = Optional.ofNullable(loginRequest.getEmployeeId())
+                .map(String::trim)
+                .orElse("");
+
+        if (employeeId.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
+
+        Employee employee = employeeRepository.findByEmployeeId(employeeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
         if (employee.getRole() == Employee.Role.ADMIN) {
-            String requestPassword = loginRequest.getPassword();
-            if (requestPassword == null || !passwordEncoder.matches(requestPassword, employee.getPassword())) {
+            String requestPassword = Optional.ofNullable(loginRequest.getPassword())
+                    .map(String::trim)
+                    .orElse("");
+            String storedPassword = Optional.ofNullable(employee.getPassword())
+                    .map(String::trim)
+                    .orElse("");
+
+            boolean isBcryptHash = storedPassword.startsWith("$2a$")
+                    || storedPassword.startsWith("$2b$")
+                    || storedPassword.startsWith("$2y$");
+            boolean passwordValid = isBcryptHash
+                    ? passwordEncoder.matches(requestPassword, storedPassword)
+                    : requestPassword.equals(storedPassword);
+
+            if (!passwordValid) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
             }
         }
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmployeeId());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(employee.getEmployeeId());
         String jwt = jwtService.generateToken(userDetails);
 
         LoginResponse response = new LoginResponse(
