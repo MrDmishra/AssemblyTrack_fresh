@@ -1,6 +1,6 @@
 package com.assemblytrack.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class ProductionRunDTO {
     private Long id;
@@ -9,8 +9,8 @@ public class ProductionRunDTO {
     private String category;
     private String workStation;
     private String toolsUsed;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private OffsetDateTime startTime;
+    private OffsetDateTime endTime;
     private Integer expectedDuration;
     private Integer actualDuration;
     private String status;
@@ -24,8 +24,8 @@ public class ProductionRunDTO {
 
     // Constructor and getters/setters
     public ProductionRunDTO(Long id, String employeeId, String productName, String category,
-            String workStation, String toolsUsed, LocalDateTime startTime,
-            LocalDateTime endTime, Integer expectedDuration, Integer actualDuration,
+            String workStation, String toolsUsed, OffsetDateTime startTime,
+            OffsetDateTime endTime, Integer expectedDuration, Integer actualDuration,
             String status, String delayReason, Integer unitsProduced, String quality,
             String logbookNotes) {
         this.id = id;
@@ -94,19 +94,19 @@ public class ProductionRunDTO {
         this.toolsUsed = toolsUsed;
     }
 
-    public LocalDateTime getStartTime() {
+    public OffsetDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(OffsetDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime() {
+    public OffsetDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(OffsetDateTime endTime) {
         this.endTime = endTime;
     }
 

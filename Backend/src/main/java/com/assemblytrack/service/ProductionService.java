@@ -14,12 +14,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductionService {
+
+    private static final ZoneId APP_ZONE = ZoneId.of("Asia/Kolkata");
 
     @Autowired
     private ProductionRunRepository productionRunRepository;
@@ -53,7 +57,7 @@ public class ProductionService {
                 request.getCategory(),
                 request.getWorkStation(),
                 toolsUsed,
-                LocalDateTime.now(),
+                LocalDateTime.now(APP_ZONE),
                 request.getExpectedDuration());
 
         productionRun = productionRunRepository.save(productionRun);
@@ -76,7 +80,7 @@ public class ProductionService {
             throw new RuntimeException("Production run is not active");
         }
 
-        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime endTime = LocalDateTime.now(APP_ZONE);
         long actualDurationMinutes = ChronoUnit.MINUTES.between(productionRun.getStartTime(), endTime);
         int actualDuration = (int) actualDurationMinutes;
 
@@ -148,6 +152,12 @@ public class ProductionService {
         Integer unitsProduced = null;
         String quality = null;
         String logbookNotes = null;
+        OffsetDateTime startTimeWithZone = productionRun.getStartTime() != null
+                ? productionRun.getStartTime().atZone(APP_ZONE).toOffsetDateTime()
+                : null;
+        OffsetDateTime endTimeWithZone = productionRun.getEndTime() != null
+                ? productionRun.getEndTime().atZone(APP_ZONE).toOffsetDateTime()
+                : null;
 
         if (productionRun.getProductionResult() != null) {
             unitsProduced = productionRun.getProductionResult().getUnitsProduced();
@@ -162,8 +172,8 @@ public class ProductionService {
                 productionRun.getCategory(),
                 productionRun.getWorkStation(),
                 toolsUsed,
-                productionRun.getStartTime(),
-                productionRun.getEndTime(),
+                startTimeWithZone,
+                endTimeWithZone,
                 productionRun.getExpectedDuration(),
                 productionRun.getActualDuration(),
                 productionRun.getStatus().name(),
