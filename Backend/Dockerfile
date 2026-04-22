@@ -12,10 +12,10 @@ COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 CMD ["sh", "-c", \
-  "if [ -f /opt/render/project/src/Backend/aiven-ca.pem ]; then \
+  "if [ -f /etc/secrets/aiven-ca.pem ]; then \
      keytool -importcert -noprompt -trustcacerts \
        -alias aiven-mysql-ca \
-       -file /opt/render/project/src/Backend/aiven-ca.pem \
+       -file /etc/secrets/aiven-ca.pem \
        -keystore $JAVA_HOME/lib/security/cacerts \
        -storepass changeit; \
    fi && \
