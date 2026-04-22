@@ -1,0 +1,32 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# Env files
+.env
+.env.*
+
+# Backend (Maven / Spring Boot)
+Backend/target/
+Backend/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend (Node / React)
+Frontend/node_modules/
+Frontend/build/
+Frontend/.cache/
+
+# Coverage
+coverage/
+
+# Temp
+*.tmp
+*.swp

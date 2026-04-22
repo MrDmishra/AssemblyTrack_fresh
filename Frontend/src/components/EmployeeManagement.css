@@ -1,0 +1,265 @@
+.emp-management {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.emp-form-card,
+.emp-list-card {
+  background: #ffffff;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.emp-form-card h2,
+.emp-list-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1f2f50;
+}
+
+.emp-form-card p,
+.emp-list-card p {
+  margin: 6px 0 14px;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+}
+
+.emp-alert {
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.emp-alert.success {
+  background: #eaf9f0;
+  color: #0d6b3d;
+  border: 1px solid #b9ebcf;
+}
+
+.emp-alert.error {
+  background: #fff0f0;
+  color: #9d1f1f;
+  border: 1px solid #f1c4c4;
+}
+
+.emp-form {
+  display: grid;
+  gap: 12px;
+}
+
+.emp-form label {
+  display: grid;
+  gap: 6px;
+  color: #334a74;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.emp-form input,
+.emp-form select {
+  border: 1px solid #d2dbec;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: #1f2f50;
+  width: 100%;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.emp-form input:focus,
+.emp-form select:focus {
+  outline: none;
+  border-color: var(--bg-accent);
+  box-shadow: 0 0 0 3px rgba(44, 91, 230, 0.14);
+}
+
+.emp-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.emp-form-actions button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--bg-accent) 0%, #4b7bff 100%);
+}
+
+.emp-form-actions button.secondary {
+  background: #eef3ff;
+  color: #2b4fa8;
+}
+
+.emp-form-actions button:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.emp-list-controls {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(140px, 180px);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.emp-list-controls input,
+.emp-list-controls select {
+  border: 1px solid #d2dbec;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 0.88rem;
+  color: #1f2f50;
+  background: #fff;
+}
+
+.emp-list-controls input:focus,
+.emp-list-controls select:focus {
+  outline: none;
+  border-color: var(--bg-accent);
+  box-shadow: 0 0 0 3px rgba(44, 91, 230, 0.14);
+}
+
+.emp-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.emp-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+
+.emp-table th,
+.emp-table td {
+  border-bottom: 1px solid #e6edf8;
+  text-align: left;
+  padding: 10px 8px;
+  font-size: 0.88rem;
+  color: #27395f;
+}
+
+.emp-table th {
+  color: #4a608e;
+  font-weight: 700;
+  background: #f9fbff;
+}
+
+.emp-table tr.editing-row {
+  background: #f0f5ff;
+}
+
+.emp-role-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.emp-role-badge.admin {
+  background: #fff3e0;
+  color: #b45309;
+}
+
+.emp-role-badge.employee {
+  background: #eaf9f0;
+  color: #0d6b3d;
+}
+
+.emp-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.emp-actions .action-edit {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.78rem;
+  background: #eef3ff;
+  color: #2b4fa8;
+}
+
+.emp-actions .action-delete {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.78rem;
+  background: #fff0f0;
+  color: #9d1f1f;
+}
+
+.emp-empty {
+  border: 1px dashed #cdd8ee;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  color: #5670a2;
+  font-weight: 600;
+}
+
+.emp-pagination {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.emp-pagination button {
+  border: 1px solid #d2dbec;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2b4fa8;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.emp-pagination button:disabled {
+  color: #94a4c6;
+  cursor: not-allowed;
+}
+
+.emp-pagination span {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4a608e;
+}
+
+@media (max-width: 1180px) {
+  .emp-management {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .emp-form-card,
+  .emp-list-card {
+    padding: 12px;
+  }
+
+  .emp-list-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .emp-pagination {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
