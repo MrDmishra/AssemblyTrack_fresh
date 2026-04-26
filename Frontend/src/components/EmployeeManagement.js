@@ -139,13 +139,15 @@ const EmployeeManagement = () => {
 
   const filteredEmployees = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    return employees.filter((emp) => {
+    const filtered = employees.filter((emp) => {
       const matchesSearch = !term
         || (emp.employeeId || '').toLowerCase().includes(term)
         || (emp.name || '').toLowerCase().includes(term);
       const matchesRole = roleFilter === 'ALL' || emp.role === roleFilter;
       return matchesSearch && matchesRole;
     });
+
+    return filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
   }, [employees, searchTerm, roleFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredEmployees.length / pageSize));

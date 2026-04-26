@@ -4,6 +4,7 @@
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
   padding: 16px;
+  min-width: 0;
 }
 
 .active-productions h2 {
@@ -17,6 +18,7 @@
   border-collapse: collapse;
   margin-top: 0;
   font-size: 0.9rem;
+  table-layout: fixed;
 }
 
 .active-productions table th,
@@ -25,6 +27,7 @@
   padding: 11px 10px;
   text-align: left;
   color: #314567;
+  word-break: break-word;
 }
 
 .active-productions table th {
@@ -62,9 +65,37 @@
 @media (max-width: 980px) {
   .active-productions {
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .active-productions table {
-    min-width: 760px;
+    min-width: 700px;
+    table-layout: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .active-productions {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .active-productions h2 {
+    font-size: 1.05rem;
+  }
+
+  .active-productions table {
+    min-width: 620px;
+    font-size: 0.82rem;
+  }
+
+  .active-productions table th,
+  .active-productions table td {
+    padding: 9px 8px;
+  }
+
+  .stop-btn {
+    padding: 6px 12px;
+    font-size: 0.78rem;
   }
 }

@@ -68,6 +68,11 @@
   background: #e8efff;
 }
 
+.production-records .failed {
+  color: #b22c4c;
+  background: #ffeaf0;
+}
+
 .production-records .empty-state {
   text-align: center;
   color: #6c7fa2;

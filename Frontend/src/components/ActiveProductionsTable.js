@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import StopProductionForm from './StopProductionForm';
 import './ActiveProductionsTable.css';
@@ -31,6 +31,23 @@ const ActiveProductionsTable = ({ productions, onProductionStopped, currentEmplo
   const canStop = (production) =>
     currentRole === 'ADMIN' || production.employeeId === currentEmployeeId;
   const [stoppingProduction, setStoppingProduction] = useState(null);
+  const [nowTs, setNowTs] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNowTs(Date.now());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const sortedProductions = useMemo(() => {
+    return [...productions].sort((a, b) => {
+      const aTime = parseApiDate(a.startTime)?.getTime() ?? 0;
+      const bTime = parseApiDate(b.startTime)?.getTime() ?? 0;
+      return bTime - aTime;
+    });
+  }, [productions]);
 
   const calculateDuration = (startTime) => {
     const start = parseApiDate(startTime);
@@ -40,8 +57,7 @@ const ActiveProductionsTable = ({ productions, onProductionStopped, currentEmplo
     }
 
     // new Date() returns current UTC time (milliseconds since epoch)
-    const nowUtc = new Date();
-    const diff = Math.max(0, nowUtc - start);
+    const diff = Math.max(0, nowTs - start.getTime());
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -59,7 +75,7 @@ const ActiveProductionsTable = ({ productions, onProductionStopped, currentEmplo
   return (
     <div className="active-productions">
       <h2>Active Productions</h2>
-      {productions.length === 0 ? (
+      {sortedProductions.length === 0 ? (
         <p>No active productions</p>
       ) : (
         <table>
@@ -74,7 +90,7 @@ const ActiveProductionsTable = ({ productions, onProductionStopped, currentEmplo
             </tr>
           </thead>
           <tbody>
-            {productions.map((production) => (
+            {sortedProductions.map((production) => (
               <tr key={production.id}>
                 <td>{production.employeeId}</td>
                 <td>{production.productName}</td>

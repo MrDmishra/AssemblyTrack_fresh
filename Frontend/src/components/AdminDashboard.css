@@ -249,6 +249,168 @@
   gap: 10px;
 }
 
+.admin-dashboard .header-controls-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.admin-dashboard .notification-center {
+  position: relative;
+}
+
+.admin-dashboard .notification-btn {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #d2dbec;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-dashboard .notification-btn:hover {
+  background: #f3f7ff;
+}
+
+.admin-dashboard .notification-icon {
+  font-size: 1.1rem;
+}
+
+.admin-dashboard .notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #d83a58;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.admin-dashboard .notification-panel {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  width: min(370px, calc(100vw - 40px));
+  background: #ffffff;
+  border: 1px solid #d2dbec;
+  border-radius: 12px;
+  box-shadow: 0 14px 24px rgba(15, 35, 70, 0.18);
+  padding: 12px;
+  z-index: 40;
+}
+
+.admin-dashboard .notification-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.admin-dashboard .notification-panel-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #24385f;
+}
+
+.admin-dashboard .clear-notification-btn {
+  border: 1px solid #d2dbec;
+  border-radius: 8px;
+  background: #f8fbff;
+  color: #2f4f8f;
+  font-weight: 700;
+  font-size: 0.76rem;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.admin-dashboard .notification-count-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.admin-dashboard .notification-count-pill {
+  border-radius: 999px;
+  padding: 6px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.admin-dashboard .notification-count-pill.active {
+  color: #1f4ec0;
+  background: #e8efff;
+}
+
+.admin-dashboard .notification-count-pill.completed {
+  color: #1f6d40;
+  background: #e9f9ef;
+}
+
+.admin-dashboard .notification-count-pill.failed {
+  color: #b0294a;
+  background: #ffeaf0;
+}
+
+.admin-dashboard .notification-list {
+  max-height: 260px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.admin-dashboard .notification-item {
+  border: 1px solid #e2e9f6;
+  border-left-width: 4px;
+  border-radius: 8px;
+  padding: 8px;
+  background: #fbfdff;
+}
+
+.admin-dashboard .notification-item p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #2d4267;
+}
+
+.admin-dashboard .notification-item small {
+  display: block;
+  margin-top: 4px;
+  color: #6c7fa2;
+  font-size: 0.72rem;
+}
+
+.admin-dashboard .notification-item.active {
+  border-left-color: #2f61e7;
+}
+
+.admin-dashboard .notification-item.completed {
+  border-left-color: #239155;
+}
+
+.admin-dashboard .notification-item.failed {
+  border-left-color: #cf3054;
+}
+
+.admin-dashboard .notification-empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #6c7fa2;
+}
+
 .admin-dashboard .date-range-controls label {
   display: grid;
   gap: 4px;
@@ -387,6 +549,10 @@
   .admin-dashboard .date-range-controls {
     justify-content: flex-start;
   }
+
+  .admin-dashboard .header-controls-right {
+    justify-content: space-between;
+  }
 }
 
 @media (max-width: 980px) {
@@ -478,6 +644,15 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  .admin-dashboard .header-controls-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-dashboard .notification-center {
+    align-self: flex-end;
+  }
+
   .admin-dashboard .sidebar-overlay {
     display: block;
     position: fixed;
@@ -514,6 +689,12 @@
   .admin-dashboard .date-range-controls {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .admin-dashboard .notification-panel {
+    right: 0;
+    left: auto;
+    width: min(320px, calc(100vw - 24px));
   }
 
   .admin-dashboard .date-range-controls input {

@@ -9,7 +9,7 @@ const EmployeeDashboard = () => {
   const [activeProductions, setActiveProductions] = useState([]);
   const [showStartForm, setShowStartForm] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [isCompactScreen, setIsCompactScreen] = useState(window.innerWidth <= 980);
+  const [isCompactScreen, setIsCompactScreen] = useState(window.innerWidth <= 1100);
   const navigate = useNavigate();
   const currentEmployeeId = localStorage.getItem('employeeId');
   const currentRole = localStorage.getItem('role');
@@ -22,7 +22,7 @@ const EmployeeDashboard = () => {
 
   useEffect(() => {
     const onResize = () => {
-      const compact = window.innerWidth <= 980;
+      const compact = window.innerWidth <= 1100;
       setIsCompactScreen(compact);
       if (!compact) {
         setIsMobileSidebarOpen(false);

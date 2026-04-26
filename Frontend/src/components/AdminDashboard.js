@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DashboardMetrics from './DashboardMetrics';
@@ -13,6 +13,23 @@ const formatDateInput = (date) => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+const isFailedProduction = (record) => {
+  const quality = (record?.quality || '').toUpperCase();
+  const status = (record?.status || '').toUpperCase();
+  return status === 'FAILED' || quality === 'REJECT' || quality === 'REJECTED' || quality === 'FAILED';
+};
+
+const getProductionCategory = (record) => {
+  const status = (record?.status || '').toUpperCase();
+  if (status === 'ACTIVE') {
+    return 'ACTIVE';
+  }
+  if (isFailedProduction(record)) {
+    return 'FAILED';
+  }
+  return 'COMPLETED';
 };
 
 const AdminDashboard = () => {
@@ -33,6 +50,13 @@ const AdminDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [productionHistory, setProductionHistory] = useState([]);
   const [filteredHistory, setFilteredHistory] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notificationCounts, setNotificationCounts] = useState({
+    active: 0,
+    completed: 0,
+    failed: 0
+  });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isCompactScreen, setIsCompactScreen] = useState(window.innerWidth <= 980);
   const [activePrimaryMenu, setActivePrimaryMenu] = useState('dashboard');
@@ -45,7 +69,118 @@ const AdminDashboard = () => {
     status: '',
     search: ''
   });
+  const previousCategoryMapRef = useRef({});
+  const isInitializedRef = useRef(false);
   const navigate = useNavigate();
+
+  const pushBrowserNotification = useCallback((title, body) => {
+    if (!('Notification' in window)) {
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body });
+      return;
+    }
+
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          new Notification(title, { body });
+        }
+      }).catch(() => {
+        // Permission prompt failed or was dismissed.
+      });
+    }
+  }, []);
+
+  const processProductionTransitions = useCallback((history) => {
+    const currentCategoryMap = {};
+    const generatedNotifications = [];
+    const previousCategoryMap = previousCategoryMapRef.current;
+
+    history.forEach((record) => {
+      const category = getProductionCategory(record);
+      currentCategoryMap[record.id] = category;
+
+      if (!isInitializedRef.current) {
+        return;
+      }
+
+      const previousCategory = previousCategoryMap[record.id];
+      const runLabel = `${record.productName} (${record.employeeId})`;
+
+      if (!previousCategory && category === 'ACTIVE') {
+        generatedNotifications.push({
+          id: `${record.id}-active-${Date.now()}`,
+          category: 'ACTIVE',
+          message: `${runLabel} started and is now active.`,
+          timestamp: new Date().toISOString()
+        });
+        return;
+      }
+
+      if (previousCategory && previousCategory !== category) {
+        if (category === 'COMPLETED') {
+          generatedNotifications.push({
+            id: `${record.id}-completed-${Date.now()}`,
+            category: 'COMPLETED',
+            message: `${runLabel} moved to completed.`,
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        if (category === 'FAILED') {
+          generatedNotifications.push({
+            id: `${record.id}-failed-${Date.now()}`,
+            category: 'FAILED',
+            message: `${runLabel} moved to failed.`,
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        if (category === 'ACTIVE') {
+          generatedNotifications.push({
+            id: `${record.id}-active-${Date.now()}`,
+            category: 'ACTIVE',
+            message: `${runLabel} moved to active.`,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+    });
+
+    previousCategoryMapRef.current = currentCategoryMap;
+
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      return;
+    }
+
+    if (generatedNotifications.length > 0) {
+      setNotifications((prev) => [...generatedNotifications, ...prev].slice(0, 120));
+      generatedNotifications.slice(0, 3).forEach((item) => {
+        pushBrowserNotification(`Production ${item.category}`, item.message);
+      });
+    }
+  }, [pushBrowserNotification]);
+
+  const updateNotificationCounts = useCallback((history) => {
+    const counts = {
+      active: 0,
+      completed: 0,
+      failed: 0
+    };
+
+    history.forEach((record) => {
+      const category = getProductionCategory(record);
+      if (category === 'ACTIVE') counts.active += 1;
+      if (category === 'COMPLETED') counts.completed += 1;
+      if (category === 'FAILED') counts.failed += 1;
+    });
+
+    setNotificationCounts(counts);
+  }, []);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -57,20 +192,33 @@ const AdminDashboard = () => {
       ]);
 
       setMetrics(metricsResponse.data);
-      setProductionHistory(historyResponse.data);
+      const latestHistory = historyResponse.data || [];
+      setProductionHistory(latestHistory);
+      updateNotificationCounts(latestHistory);
+      processProductionTransitions(latestHistory);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     }
-  }, []);
+  }, [processProductionTransitions, updateNotificationCounts]);
 
   useEffect(() => {
     fetchDashboardData();
 
     const refreshTimer = setInterval(() => {
       fetchDashboardData();
-    }, 30000);
+    }, 10000);
 
-    return () => clearInterval(refreshTimer);
+    const onVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchDashboardData();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearInterval(refreshTimer);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, [fetchDashboardData]);
 
   useEffect(() => {
@@ -115,7 +263,13 @@ const AdminDashboard = () => {
     }
 
     if (filters.status) {
-      filtered = filtered.filter(record => record.status === filters.status);
+      if (filters.status === 'FAILED') {
+        filtered = filtered.filter(record => isFailedProduction(record));
+      } else if (filters.status === 'COMPLETED') {
+        filtered = filtered.filter(record => record.status === 'COMPLETED' && !isFailedProduction(record));
+      } else {
+        filtered = filtered.filter(record => record.status === filters.status);
+      }
     }
 
     if (filters.search) {
@@ -213,6 +367,10 @@ const AdminDashboard = () => {
 
   const toggleSidebar = () => {
     setIsMobileSidebarOpen(prev => !prev);
+  };
+
+  const clearNotifications = () => {
+    setNotifications([]);
   };
 
   const handleNavItemClick = (menuKey) => {
@@ -352,28 +510,74 @@ const AdminDashboard = () => {
               </div>
 
               {activePrimaryMenu !== 'master' && activePrimaryMenu !== 'employee-master' && (
-                <div className="date-range-controls">
-                  <label>
-                    <span>Start Date</span>
-                    <input
-                      type="date"
-                      name="startDate"
-                      value={filters.startDate}
-                      max={today}
-                      onChange={handleFilterChange}
-                    />
-                  </label>
-                  <label>
-                    <span>End Date</span>
-                    <input
-                      type="date"
-                      name="endDate"
-                      value={filters.endDate}
-                      min={filters.startDate}
-                      max={today}
-                      onChange={handleFilterChange}
-                    />
-                  </label>
+                <div className="header-controls-right">
+                  <div className="date-range-controls">
+                    <label>
+                      <span>Start Date</span>
+                      <input
+                        type="date"
+                        name="startDate"
+                        value={filters.startDate}
+                        max={today}
+                        onChange={handleFilterChange}
+                      />
+                    </label>
+                    <label>
+                      <span>End Date</span>
+                      <input
+                        type="date"
+                        name="endDate"
+                        value={filters.endDate}
+                        min={filters.startDate}
+                        max={today}
+                        onChange={handleFilterChange}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="notification-center">
+                    <button
+                      type="button"
+                      className="notification-btn"
+                      onClick={() => setIsNotificationOpen(prev => !prev)}
+                      aria-label="Open notifications"
+                    >
+                      <span className="notification-icon">🔔</span>
+                      {notifications.length > 0 && (
+                        <span className="notification-badge">{notifications.length}</span>
+                      )}
+                    </button>
+
+                    {isNotificationOpen && (
+                      <div className="notification-panel">
+                        <div className="notification-panel-header">
+                          <h3>Notifications</h3>
+                          <button type="button" className="clear-notification-btn" onClick={clearNotifications}>
+                            Clear
+                          </button>
+                        </div>
+
+                        <div className="notification-count-grid">
+                          <span className="notification-count-pill active">Active: {notificationCounts.active}</span>
+                          <span className="notification-count-pill completed">Completed: {notificationCounts.completed}</span>
+                          <span className="notification-count-pill failed">Failed: {notificationCounts.failed}</span>
+                        </div>
+
+                        <div className="notification-list">
+                          {notifications.length === 0 ? (
+                            <p className="notification-empty">No new notifications.</p>
+                          ) : (
+                            notifications.map((item) => (
+                              <div key={item.id} className={`notification-item ${item.category.toLowerCase()}`}>
+                                <p>{item.message}</p>
+                                <small>{new Date(item.timestamp).toLocaleString()}</small>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -411,6 +615,7 @@ const AdminDashboard = () => {
                     <option value="">All Status</option>
                     <option value="COMPLETED">Completed</option>
                     <option value="ACTIVE">Active</option>
+                    <option value="FAILED">Failed</option>
                   </select>
                   <input
                     type="text"

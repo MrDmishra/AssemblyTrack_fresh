@@ -81,7 +81,7 @@ const MasterManagement = ({ title, masterType }) => {
 
   const filteredItems = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
-    return items.filter((item) => {
+    const filtered = items.filter((item) => {
       const matchesSearch = !normalizedSearch
         || (item.name || '').toLowerCase().includes(normalizedSearch)
         || (item.description || '').toLowerCase().includes(normalizedSearch)
@@ -93,6 +93,8 @@ const MasterManagement = ({ title, masterType }) => {
 
       return matchesSearch && matchesStatus;
     });
+
+    return filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
   }, [items, searchTerm, statusFilter, isProductMaster]);
 
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
